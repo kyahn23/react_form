@@ -1,12 +1,14 @@
-import { useEffect, useState } from "react";
+import useInput from "../hooks/use-input";
 
 const SimpleInput = (props) => {
-  const [enteredName, setEnteredName] = useState("");
-  const [enteredNameTouched, setEnteredNameTouched] = useState(false);
-  // const [formIsValid, setFormIsValid] = useState(false); // 전체 form validation
-
-  const enteredNameIsValid = enteredName.trim() !== "";
-  const nameInputIsInvalid = !enteredNameIsValid && enteredNameTouched;
+  const {
+    value: enteredName,
+    isValid: enteredNameIsValid,
+    hasError: nameInputHasError,
+    valueChangeHandler: nameChangedHandler,
+    inputBlurHandler: nameBlurHandler,
+    reset: resetNameInput,
+  } = useInput((value) => value.trim() !== "");
 
   let formIsValid = false;
   // useEffect(() => {  // 현 코드에서는 필요없음
@@ -15,17 +17,8 @@ const SimpleInput = (props) => {
   }
   // }, [enteredNameIsValid]);
 
-  const nameInputChangeHandler = (event) => {
-    setEnteredName(event.target.value);
-  };
-
-  const nameInputBlurHandler = (event) => {
-    setEnteredNameTouched(true);
-  };
-
   const formSubmtHandler = (event) => {
     event.preventDefault();
-    setEnteredNameTouched(true);
 
     if (!enteredNameIsValid) {
       return;
@@ -33,12 +26,10 @@ const SimpleInput = (props) => {
 
     console.log(enteredName);
 
-    // nameInputRef.current.value = ""; // react로 값을 제어하는것을 권함
-    setEnteredName("");
-    setEnteredNameTouched(false); // 폼이 제출된 뒤에는 엔터 초기화
+    resetNameInput();
   };
 
-  const nameInputClasses = nameInputIsInvalid
+  const nameInputClasses = nameInputHasError
     ? "form-control invalid"
     : "form-control";
   return (
@@ -48,11 +39,11 @@ const SimpleInput = (props) => {
         <input
           type="text"
           id="name"
-          onChange={nameInputChangeHandler}
-          onBlur={nameInputBlurHandler}
+          onChange={nameChangedHandler}
+          onBlur={nameBlurHandler}
           value={enteredName}
         />
-        {nameInputIsInvalid && (
+        {nameInputHasError && (
           <p className="error-text">Name must not be empty.</p>
         )}
       </div>
